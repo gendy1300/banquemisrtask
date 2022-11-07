@@ -11,4 +11,6 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="convert">Convert</string>
     <string name="history">History</string>
+    <string name="baseUrl">https://data.fixer.io/api/</string>
+    <string name="apikey">ph4TimwLTg1FS0qo9g3xDAIJR461guUn</string>
 </resources>

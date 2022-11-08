@@ -87,6 +87,7 @@
                 android:textAlignment="center"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
+                android:inputType="numberDecimal"
                 android:background="#E8E9EB"
                 android:textColor="@color/black" />
 

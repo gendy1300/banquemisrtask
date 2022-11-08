@@ -19,7 +19,7 @@ interface SafeApiCall {
                         Resource.Failure(
                             false,
                             throwable.code(),
-                            throwable.message()
+                            throwable.message().toString()
                         )
                     }
 
@@ -43,7 +43,7 @@ interface SafeApiCall {
 
                     else -> {
                         Resource.Failure(
-                            true, null, "an error has occurred"
+                            true, null, throwable.message.toString()
                         )
                     }
                 }

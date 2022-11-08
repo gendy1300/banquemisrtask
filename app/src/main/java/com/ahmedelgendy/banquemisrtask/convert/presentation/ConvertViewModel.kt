@@ -25,9 +25,9 @@ class ConvertViewModel @Inject constructor(
         get() = _currenciesResponse
 
 
-    private var _convertResponse: MutableLiveData<NetworkCallEvent<Resource<ConvertResponse>>> =
+    private var _convertResponse: MutableLiveData<Resource<ConvertResponse>> =
         MutableLiveData()
-    val convertResponse: LiveData<NetworkCallEvent<Resource<ConvertResponse>>>
+    val convertResponse: LiveData<Resource<ConvertResponse>>
         get() = _convertResponse
 
 
@@ -38,13 +38,13 @@ class ConvertViewModel @Inject constructor(
 
 
     fun convert(from:String,to:String,amount:String) = viewModelScope.launch {
-        _convertResponse.postValue(NetworkCallEvent(Resource.Loading))
-        _convertResponse.postValue(NetworkCallEvent(repo.convert(from,to,amount)))
+        _convertResponse.postValue(Resource.Loading)
+        _convertResponse.postValue(repo.convert(from,to,amount))
     }
 
 
     fun clearResponses() {
-        _currenciesResponse = MutableLiveData()
+//        _currenciesResponse = MutableLiveData()
         _convertResponse = MutableLiveData()
     }
 }

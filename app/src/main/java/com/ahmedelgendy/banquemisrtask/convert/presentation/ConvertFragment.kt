@@ -38,8 +38,10 @@ class ConvertFragment : Fragment() {
     private val binding get() = _binding!!
 
     lateinit var fromCurrency: String
+    var fromCurrencyPosition: Int = 0
 
     lateinit var toCurrency: String
+    var toCurrencyPosition: Int = 0
 
     private lateinit var currencies: SortedMap<String, String>
 
@@ -62,17 +64,40 @@ class ConvertFragment : Fragment() {
         textObservers()
         textFocusChange()
         spinnersItemsSelectedListener()
+        swapCurrencyImplementation()
 
 
+    }
+
+    private fun swapCurrencyImplementation() {
+        binding.swapBtn.setOnClickListener {
+            val tempCurrency = fromCurrency
+            fromCurrency = toCurrency
+            toCurrency = tempCurrency
+
+            binding.fromDropDown.setSelection(toCurrencyPosition)
+            binding.toTextField.setText("")
+            binding.toDropDown.setSelection(fromCurrencyPosition)
+
+
+        }
     }
 
 
     private fun spinnersItemsSelectedListener() {
         binding.toDropDown.onItemSelectedListener = object : OnItemSelectedListener {
-            override fun onItemSelected(p0: AdapterView<*>?, view: View?, p2: Int, p3: Long) {
+            override fun onItemSelected(p0: AdapterView<*>?, view: View?, position: Int, p3: Long) {
                 val spinner = view as AppCompatTextView
                 toCurrency = spinner.text.toString().substringAfter("(")
                     .split(",")[0]
+
+                toCurrencyPosition = position
+
+                if (this@ConvertFragment::fromCurrency.isInitialized) {
+                    convert(binding.fromTextField.text.toString(), 1)
+                }
+
+
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -83,10 +108,15 @@ class ConvertFragment : Fragment() {
 
         binding.fromDropDown.onItemSelectedListener = object : OnItemSelectedListener {
 
-            override fun onItemSelected(p0: AdapterView<*>?, view: View?, p2: Int, p3: Long) {
+            override fun onItemSelected(p0: AdapterView<*>?, view: View?, position: Int, p3: Long) {
                 val spinner = view as AppCompatTextView
                 fromCurrency = spinner.text.toString().substringAfter("(")
                     .split(",")[0]
+                fromCurrencyPosition = position
+
+                if (this@ConvertFragment::toCurrency.isInitialized) {
+                    convert(binding.toTextField.text.toString(), 2)
+                }
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -121,49 +151,14 @@ class ConvertFragment : Fragment() {
     private fun textObservers() {
         binding.fromTextField.doAfterTextChanged {
             it?.let {
-                if (it.isNotEmpty()) {
-
-
-                    convertJob.cancel()
-
-                    convertJob = lifecycleScope.launch {
-                        /**
-                         * making sure that we not load every change but when the user is finished
-                         * typing there amount correctly
-                         * the value field indicates if the changed number is from or to fields
-                         */
-                        delay(1000)
-                        if (isActive)
-                            convert(it.toString(), 1)
-                    }
-
-
-                } else {
-                    convertJob.cancel()
-                }
+                startConvertJob(it.toString(), 1)
             }
         }
 
 
         binding.toTextField.doAfterTextChanged {
             it?.let {
-                if (it.isNotEmpty()) {
-                    convertJob.cancel()
-                    convertJob = lifecycleScope.launch {
-                        /**
-                         * making sure that we not load every change but when the user is finished
-                         * typing there amount correctly
-                         * the value field indicates if the changed number is from or to fields
-                         */
-                        delay(1000)
-                        if (isActive)
-                            convert(it.toString(), 2)
-                    }
-
-
-                } else {
-                    convertJob.cancel()
-                }
+                startConvertJob(it.toString(), 2)
             }
         }
 
@@ -250,11 +245,19 @@ class ConvertFragment : Fragment() {
     }
 
     fun convert(amount: String, valueField: Int) {
-        viewModel.convert(fromCurrency, toCurrency, amount)
+        /**
+         * I thought about making conversion local and fetching only the rate of 1
+         * but the price of currency changes very fast
+         */
 
-        lifecycleScope.launch() {
-            viewModel.convertResponse.observe(viewLifecycleOwner) { it ->
-                it.getContentIfNotHandled()?.let { event ->
+
+        if (amount.isNotEmpty()) {
+            viewModel.clearResponses()
+            viewModel.convert(fromCurrency, toCurrency, amount)
+
+            lifecycleScope.launch() {
+
+                viewModel.convertResponse.observe(viewLifecycleOwner) { event ->
                     showLoading(event is Resource.Loading)
                     when (event) {
                         is Resource.Success -> {
@@ -267,8 +270,8 @@ class ConvertFragment : Fragment() {
                                 } else {
                                     binding.fromTextField.setText(response.result.toString())
                                 }
-
                                 convertJob.cancel()
+
                             }
                         }
                         is Resource.Failure -> {
@@ -277,7 +280,31 @@ class ConvertFragment : Fragment() {
                         }
                     }
                 }
+
+
             }
+        }
+    }
+
+    private fun startConvertJob(amount: String, valueField: Int) {
+
+        if (amount.isNotEmpty()) {
+            convertJob.cancel()
+
+            convertJob = lifecycleScope.launch {
+                /**
+                 * making sure that we not load every change but when the user is finished
+                 * typing there amount correctly
+                 * the value field indicates if the changed number is from or to fields
+                 */
+                delay(1000)
+                if (isActive)
+                    convert(amount, valueField)
+            }
+
+
+        } else {
+            convertJob.cancel()
         }
     }
 }

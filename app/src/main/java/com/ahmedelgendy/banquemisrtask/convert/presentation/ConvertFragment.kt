@@ -21,6 +21,9 @@ import com.ahmedelgendy.banquemisrtask.general.network.Resource
 import com.ahmedelgendy.banquemisrtask.general.showLoading
 import com.ahmedelgendy.banquemisrtask.general.showLongToast
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -35,9 +38,12 @@ class ConvertFragment : Fragment() {
     private val binding get() = _binding!!
 
     lateinit var fromCurrency: String
+
     lateinit var toCurrency: String
 
     private lateinit var currencies: SortedMap<String, String>
+
+    var convertJob: Job = Job()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,7 +65,6 @@ class ConvertFragment : Fragment() {
 
 
     }
-
 
 
     private fun spinnersItemsSelectedListener() {
@@ -92,13 +97,12 @@ class ConvertFragment : Fragment() {
     }
 
 
-
     private fun textFocusChange() {
         binding.fromTextField.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
             if (!hasFocus) {
                 val editText = v as EditText
                 if (editText.length() <= 0) {
-                    (v).setText("1.00")
+                    v.setText("1.00")
                 }
             }
         }
@@ -107,35 +111,64 @@ class ConvertFragment : Fragment() {
             if (!hasFocus) {
                 val editText = v as EditText
                 if (editText.length() <= 0) {
-                    (v).setText("1.00")
+                    v.setText("1.00")
                 }
             }
         }
     }
-
 
 
     private fun textObservers() {
         binding.fromTextField.doAfterTextChanged {
             it?.let {
                 if (it.isNotEmpty()) {
-                    it.toString().toFloat()
+
+
+                    convertJob.cancel()
+
+                    convertJob = lifecycleScope.launch {
+                        /**
+                         * making sure that we not load every change but when the user is finished
+                         * typing there amount correctly
+                         * the value field indicates if the changed number is from or to fields
+                         */
+                        delay(1000)
+                        if (isActive)
+                            convert(it.toString(), 1)
+                    }
+
+
+                } else {
+                    convertJob.cancel()
                 }
             }
         }
 
 
-
-        binding.fromTextField.doAfterTextChanged {
+        binding.toTextField.doAfterTextChanged {
             it?.let {
                 if (it.isNotEmpty()) {
-                    it.toString().toFloat()
+                    convertJob.cancel()
+                    convertJob = lifecycleScope.launch {
+                        /**
+                         * making sure that we not load every change but when the user is finished
+                         * typing there amount correctly
+                         * the value field indicates if the changed number is from or to fields
+                         */
+                        delay(1000)
+                        if (isActive)
+                            convert(it.toString(), 2)
+                    }
+
+
+                } else {
+                    convertJob.cancel()
                 }
             }
         }
 
-    }
 
+    }
 
 
     override fun onDestroyView() {
@@ -151,8 +184,7 @@ class ConvertFragment : Fragment() {
 
     private fun startObserver() {
         lifecycleScope.launch() {
-            viewModel.currenciesResponse.observe(viewLifecycleOwner) {
-
+            viewModel.currenciesResponse.observe(viewLifecycleOwner) { it ->
                 it.getContentIfNotHandled()?.let { event ->
                     showLoading(event is Resource.Loading)
                     when (event) {
@@ -199,6 +231,10 @@ class ConvertFragment : Fragment() {
                     }
 
                 } ?: run {
+                    /**
+                     * this is in case if the api is already loaded so we don't over spam
+                     * the server when we don't have to
+                     */
                     val ad: ArrayAdapter<*> = ArrayAdapter<Any?>(
                         requireContext(),
                         R.layout.simple_spinner_item,
@@ -209,14 +245,39 @@ class ConvertFragment : Fragment() {
                     binding.fromDropDown.adapter = ad
                     binding.toDropDown.adapter = ad
                 }
-
             }
-
-
         }
-
-
     }
 
+    fun convert(amount: String, valueField: Int) {
+        viewModel.convert(fromCurrency, toCurrency, amount)
 
+        lifecycleScope.launch() {
+            viewModel.convertResponse.observe(viewLifecycleOwner) { it ->
+                it.getContentIfNotHandled()?.let { event ->
+                    showLoading(event is Resource.Loading)
+                    when (event) {
+                        is Resource.Success -> {
+                            val status = event.value.success
+                            val response = event.value
+
+                            if (status == true) {
+                                if (valueField == 1) {
+                                    binding.toTextField.setText(response.result.toString())
+                                } else {
+                                    binding.fromTextField.setText(response.result.toString())
+                                }
+
+                                convertJob.cancel()
+                            }
+                        }
+                        is Resource.Failure -> {
+                        }
+                        Resource.Loading -> {
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

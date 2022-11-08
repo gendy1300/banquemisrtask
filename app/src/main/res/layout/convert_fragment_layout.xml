@@ -66,6 +66,8 @@
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
                 android:text="1.00"
+                android:textSize="20sp"
+                android:textAlignment="center"
                 android:inputType="numberDecimal"
                 android:textColor="@color/black" />
 
@@ -80,10 +82,12 @@
                 android:layout_height="match_parent"
                 android:layout_weight="2"
                 android:text="1.00"
+                android:textSize="20sp"
+                android:gravity="center"
+                android:textAlignment="center"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
                 android:background="#E8E9EB"
-                android:inputType="numberDecimal"
                 android:textColor="@color/black" />
 
         </LinearLayout>

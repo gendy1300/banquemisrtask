@@ -14,4 +14,14 @@ class ConvertRepoImpl @Inject constructor(
             api.getCountries()
         }
 
+
+    override suspend fun convert(
+        from: String,
+        to: String,
+        amount: String
+    ) =
+        safeApiCall {
+            api.convert(from, to, amount)
+        }
+
 }

@@ -8,7 +8,6 @@
     <fragment
         android:id="@+id/ConvertFragment"
         android:name="com.ahmedelgendy.banquemisrtask.convert.presentation.ConvertFragment"
-        android:label="@string/first_fragment_label"
         tools:layout="@layout/convert_fragment_layout">
 
     </fragment>

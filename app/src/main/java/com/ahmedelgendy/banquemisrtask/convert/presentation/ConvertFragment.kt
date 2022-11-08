@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.ahmedelgendy.banquemisrtask.databinding.ConvertFragmentLayoutBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -13,8 +14,8 @@ class ConvertFragment : Fragment() {
 
     private var _binding: ConvertFragmentLayoutBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
+    private val viewModel: ConvertViewModel by viewModels()
+
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -30,6 +31,8 @@ class ConvertFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+        viewModel.getCurrencies()
 
     }
 

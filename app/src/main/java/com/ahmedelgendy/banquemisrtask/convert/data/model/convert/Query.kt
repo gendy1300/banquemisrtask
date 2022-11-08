@@ -1,4 +1,4 @@
-package com.ahmedelgendy.banquemisrtask.convert.data.model
+package com.ahmedelgendy.banquemisrtask.convert.data.model.convert
 
 data class Query(
     val amount: Int? = null,

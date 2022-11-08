@@ -3,7 +3,6 @@ package com.ahmedelgendy.banquemisrtask.general.network
 import android.content.Context
 import androidx.viewbinding.BuildConfig
 import com.ahmedelgendy.banquemisrtask.R
-import com.ahmedelgendy.banquemisrtask.general.network.errorReport.ErrorReporter
 import com.ahmedelgendy.banquemisrtask.general.network.intercepter.ConnectionInterceptor
 import com.google.gson.GsonBuilder
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -40,12 +39,13 @@ class RetrofitImplementation @Inject constructor(
 
                             chain ->
                         val originalRequest = chain.request()
-                        val httpUrl = originalRequest.url.newBuilder()
-                            .addQueryParameter("access_key", context.getString(R.string.apikey))
-                            .build()
+                        val httpUrl = originalRequest.url.newBuilder().build()
                         val newRequest = originalRequest.newBuilder().url(httpUrl).build()
                         chain.proceed(
-                            newRequest.newBuilder().build()
+                            newRequest.newBuilder()
+                                .addHeader("access_key", context.getString(R.string.apikey))
+
+                                .build()
                         )
                     }
                     .also { client ->
@@ -61,7 +61,6 @@ class RetrofitImplementation @Inject constructor(
             .build()
             .create(api)
     }
-
 
 
 }

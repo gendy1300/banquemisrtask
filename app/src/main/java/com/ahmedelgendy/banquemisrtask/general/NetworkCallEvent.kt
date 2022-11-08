@@ -1,6 +1,6 @@
 package com.ahmedelgendy.banquemisrtask.general
 
-open class NetworkEvent<out T>(private val content: T) {
+open class NetworkCallEvent<out T>(private val content: T) {
 
     var hasBeenHandled = false
         private set

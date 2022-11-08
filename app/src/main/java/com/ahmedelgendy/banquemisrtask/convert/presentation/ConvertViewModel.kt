@@ -25,6 +25,7 @@ class ConvertViewModel @Inject constructor(
 
 
     fun getCurrencies() = viewModelScope.launch {
+        _currenciesResponse.postValue(NetworkCallEvent(Resource.Loading))
         _currenciesResponse.postValue(NetworkCallEvent(repo.getCurrencies()))
     }
 

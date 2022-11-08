@@ -1,9 +1,12 @@
 package com.ahmedelgendy.banquemisrtask.general.network
 
 import android.content.Context
-import androidx.viewbinding.BuildConfig
+import android.util.Log
+import com.ahmedelgendy.banquemisrtask.BuildConfig
+
 import com.ahmedelgendy.banquemisrtask.R
 import com.ahmedelgendy.banquemisrtask.general.network.intercepter.ConnectionInterceptor
+import com.ahmedelgendy.banquemisrtask.general.showLongToast
 import com.google.gson.GsonBuilder
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.OkHttpClient
@@ -35,15 +38,20 @@ class RetrofitImplementation @Inject constructor(
                     .writeTimeout(60, TimeUnit.SECONDS)
                     .readTimeout(60, TimeUnit.SECONDS)
                     .connectTimeout(30, TimeUnit.SECONDS)
-                    .addInterceptor {
+                    .addInterceptor { chain ->
+                        val request = chain.request()
+                        val response = chain.proceed(request)
+                        if (response.code == 401) {
 
-                            chain ->
+                            Log.d("network","${response.message}  need to change api key")
+                        }
+
                         val originalRequest = chain.request()
                         val httpUrl = originalRequest.url.newBuilder().build()
                         val newRequest = originalRequest.newBuilder().url(httpUrl).build()
                         chain.proceed(
                             newRequest.newBuilder()
-                                .addHeader("access_key", context.getString(R.string.apikey))
+                                .addHeader("apikey", context.getString(R.string.apikey))
 
                                 .build()
                         )

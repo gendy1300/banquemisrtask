@@ -1,6 +1,6 @@
 package com.ahmedelgendy.banquemisrtask.convert.presentation
 
-import android.R
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +17,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
+import com.ahmedelgendy.banquemisrtask.R
 import com.ahmedelgendy.banquemisrtask.databinding.ConvertFragmentLayoutBinding
 import com.ahmedelgendy.banquemisrtask.general.network.Resource
 import com.ahmedelgendy.banquemisrtask.general.showLoading
@@ -74,6 +76,11 @@ class ConvertFragment : Fragment() {
         textFocusChange()
         spinnersItemsSelectedListener()
         swapCurrencyImplementation()
+
+
+        binding.detailsBtn.setOnClickListener {
+            it.findNavController().navigate(R.id.convertFragmentToHistoryFragment)
+        }
 
 
     }
@@ -233,10 +240,10 @@ class ConvertFragment : Fragment() {
 
                                     val ad: ArrayAdapter<*> = ArrayAdapter<Any?>(
                                         requireContext(),
-                                        R.layout.simple_spinner_item,
+                                        android.R.layout.simple_spinner_item,
                                         currencies.toList()
                                     )
-                                    ad.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
+                                    ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
                                     currencyArrayAdapter?.value = ad
 
@@ -266,10 +273,10 @@ class ConvertFragment : Fragment() {
                      */
                     val ad: ArrayAdapter<*> = ArrayAdapter<Any?>(
                         requireContext(),
-                        R.layout.simple_spinner_item,
+                        android.R.layout.simple_spinner_item,
                         currencies.toList()
                     )
-                    ad.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
+                    ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
                     currencyArrayAdapter?.value = ad
 

@@ -10,6 +10,16 @@
         android:name="com.ahmedelgendy.banquemisrtask.convert.presentation.ConvertFragment"
         tools:layout="@layout/convert_fragment_layout">
 
+        <action
+            android:id="@+id/convertFragmentToHistoryFragment"
+            app:destination="@+id/HistoryFragment" />
+
     </fragment>
+
+
+    <fragment
+        android:id="@+id/HistoryFragment"
+        android:name="com.ahmedelgendy.banquemisrtask.history.presentation.HistoryFragment"
+        tools:layout="@layout/historical_data_layout" />
 
 </navigation>

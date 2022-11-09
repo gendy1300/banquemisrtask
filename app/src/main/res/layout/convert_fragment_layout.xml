@@ -1,107 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<layout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <data>
+
+        <variable
+            name="currencyVariables"
+            type="com.ahmedelgendy.banquemisrtask.convert.presentation.ConvertFragment" />
+    </data>
+
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
-
-        <LinearLayout
-            android:id="@+id/convertLayout"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginStart="13dp"
-            android:layout_marginTop="150dp"
-            android:layout_marginEnd="13dp"
-            android:gravity="center_vertical"
-            android:weightSum="5"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_height="wrap_content">
 
-            <Spinner
-                android:id="@+id/fromDropDown"
-                android:layout_width="0dp"
+
+            <LinearLayout
+                android:id="@+id/convertLayout"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginStart="13dp"
+                android:layout_marginTop="150dp"
+                android:layout_marginEnd="13dp"
+                android:gravity="center_vertical"
+                android:weightSum="5"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <Spinner
+                    android:id="@+id/fromDropDown"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+
+                    android:background="@android:drawable/btn_dropdown"
+                    android:popupBackground="@color/white"
+                    android:spinnerMode="dropdown" />
+
+                <ImageView
+                    android:id="@+id/swapBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/ic_swap" />
+
+                <Spinner
+                    android:id="@+id/toDropDown"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+
+                    android:background="@android:drawable/btn_dropdown"
+                    android:popupBackground="@color/white"
+                    android:spinnerMode="dropdown" />
+            </LinearLayout>
+
+            <LinearLayout
+
+                android:id="@+id/textLayout"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginStart="13dp"
+                android:layout_marginEnd="13dp"
+                android:weightSum="5"
+                app:layout_constraintTop_toBottomOf="@id/convertLayout">
+
+
+                <EditText
+                    android:id="@+id/fromTextField"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2"
+                    android:background="#E8E9EB"
+                    android:inputType="numberDecimal"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="@={currencyVariables.fromAmount}"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:textSize="20sp" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <EditText
+                    android:id="@+id/toTextField"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2"
+                    android:background="#E8E9EB"
+                    android:gravity="center"
+                    android:inputType="numberDecimal"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="@={currencyVariables.toAmount}"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:textSize="20sp" />
+
+            </LinearLayout>
+
+
+            <Button
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:background="@android:drawable/btn_dropdown"
-                android:popupBackground="@color/white"
-                android:spinnerMode="dropdown" />
+                android:layout_marginTop="50dp"
+                android:text="@string/details"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textLayout" />
 
-            <ImageView
-                android:id="@+id/swapBtn"
-                android:layout_width="0dp"
-                android:layout_height="45dp"
-                android:layout_weight="1"
-                android:src="@drawable/ic_swap" />
-
-            <Spinner
-                android:id="@+id/toDropDown"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:background="@android:drawable/btn_dropdown"
-                android:popupBackground="@color/white"
-                android:spinnerMode="dropdown" />
-        </LinearLayout>
-
-        <LinearLayout
-
-            android:id="@+id/textLayout"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginStart="13dp"
-            android:layout_marginEnd="13dp"
-            android:weightSum="5"
-            app:layout_constraintTop_toBottomOf="@id/convertLayout">
-
-
-            <EditText
-                android:id="@+id/fromTextField"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="2"
-                android:background="#E8E9EB"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:text="1.00"
-                android:textSize="20sp"
-                android:textAlignment="center"
-                android:inputType="numberDecimal"
-                android:textColor="@color/black" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <EditText
-                android:id="@+id/toTextField"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="2"
-                android:text="1.00"
-                android:textSize="20sp"
-                android:gravity="center"
-                android:textAlignment="center"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:inputType="numberDecimal"
-                android:background="#E8E9EB"
-                android:textColor="@color/black" />
-
-        </LinearLayout>
-
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
-            android:text="@string/details"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textLayout" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</layout>

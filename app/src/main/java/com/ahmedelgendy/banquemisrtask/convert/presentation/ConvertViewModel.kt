@@ -47,4 +47,8 @@ class ConvertViewModel @Inject constructor(
 //        _currenciesResponse = MutableLiveData()
         _convertResponse = MutableLiveData()
     }
+
+
+
+
 }

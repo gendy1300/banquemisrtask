@@ -25,7 +25,7 @@ interface SafeApiCall {
 
                     is NoConnectivityException -> {
                         Resource.Failure(
-                            false,
+                            true,
                             0,
                             "no Internet Connection"
                         )
@@ -35,7 +35,7 @@ interface SafeApiCall {
                     is java.net.SocketTimeoutException -> {
 
                         Resource.Failure(
-                            false,
+                            true,
                             0,
                             "Time out"
                         )
@@ -43,7 +43,7 @@ interface SafeApiCall {
 
                     else -> {
                         Resource.Failure(
-                            true, null, throwable.message.toString()
+                            false, null, throwable.message.toString()
                         )
                     }
                 }

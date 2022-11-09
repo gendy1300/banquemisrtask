@@ -2,7 +2,6 @@ package com.ahmedelgendy.banquemisrtask.convert.presentation
 
 import android.R
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnFocusChangeListener
@@ -11,10 +10,12 @@ import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.SpinnerAdapter
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import com.ahmedelgendy.banquemisrtask.databinding.ConvertFragmentLayoutBinding
 import com.ahmedelgendy.banquemisrtask.general.network.Resource
@@ -37,13 +38,18 @@ class ConvertFragment : Fragment() {
 
     private val binding get() = _binding!!
 
-    lateinit var fromCurrency: String
+    var fromCurrency: String? = null
+    var fromAmount: MutableLiveData<String> = MutableLiveData("1.00")
     var fromCurrencyPosition: Int = 0
 
-    lateinit var toCurrency: String
+    var toCurrency: String? = null
+    var toAmount: MutableLiveData<String> = MutableLiveData("1.0")
     var toCurrencyPosition: Int = 0
 
+
     private lateinit var currencies: SortedMap<String, String>
+
+    var currencyArrayAdapter: MutableLiveData<SpinnerAdapter>? = null
 
     var convertJob: Job = Job()
 
@@ -60,6 +66,9 @@ class ConvertFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.currencyVariables = this
+        binding.lifecycleOwner = viewLifecycleOwner
+
         loadData()
         textObservers()
         textFocusChange()
@@ -71,20 +80,29 @@ class ConvertFragment : Fragment() {
 
     private fun swapCurrencyImplementation() {
         binding.swapBtn.setOnClickListener {
+
+            /**
+             * when swapping currencies the input stays as it is and the output get the converted value
+             */
+
             val tempCurrency = fromCurrency
             fromCurrency = toCurrency
             toCurrency = tempCurrency
 
             binding.fromDropDown.setSelection(toCurrencyPosition)
-            binding.toTextField.setText("")
+            toAmount.value = ""
             binding.toDropDown.setSelection(fromCurrencyPosition)
-
 
         }
     }
 
 
     private fun spinnersItemsSelectedListener() {
+        /**
+         * when the selected currency change the input stays as it is
+         * and the output changes its value to the converted value
+         */
+
         binding.toDropDown.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(p0: AdapterView<*>?, view: View?, position: Int, p3: Long) {
                 val spinner = view as AppCompatTextView
@@ -93,9 +111,8 @@ class ConvertFragment : Fragment() {
 
                 toCurrencyPosition = position
 
-                if (this@ConvertFragment::fromCurrency.isInitialized) {
-                    convert(binding.fromTextField.text.toString(), 1)
-                }
+
+                fromAmount.value?.let { convert(fromCurrency, toCurrency, it, 1) }
 
 
             }
@@ -114,9 +131,9 @@ class ConvertFragment : Fragment() {
                     .split(",")[0]
                 fromCurrencyPosition = position
 
-                if (this@ConvertFragment::toCurrency.isInitialized) {
-                    convert(binding.toTextField.text.toString(), 2)
-                }
+
+                fromAmount.value?.let { convert(fromCurrency, toCurrency, it, 1) }
+
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -128,11 +145,16 @@ class ConvertFragment : Fragment() {
 
 
     private fun textFocusChange() {
+
+        /**
+         * if a field left empty we reset it to the default value
+         */
+
         binding.fromTextField.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
             if (!hasFocus) {
                 val editText = v as EditText
                 if (editText.length() <= 0) {
-                    v.setText("1.00")
+                    fromAmount.value = "1.00"
                 }
             }
         }
@@ -141,7 +163,7 @@ class ConvertFragment : Fragment() {
             if (!hasFocus) {
                 val editText = v as EditText
                 if (editText.length() <= 0) {
-                    v.setText("1.00")
+                    toAmount.value = "1.00"
                 }
             }
         }
@@ -151,14 +173,25 @@ class ConvertFragment : Fragment() {
     private fun textObservers() {
         binding.fromTextField.doAfterTextChanged {
             it?.let {
-                startConvertJob(it.toString(), 1)
+                if (binding.fromTextField.hasFocus()) {
+                    fromAmount.value?.let { it1 ->
+                        startConvertJob(
+                            fromCurrency,
+                            toCurrency,
+                            it1,
+                            1
+                        )
+                    }
+                }
             }
         }
 
 
         binding.toTextField.doAfterTextChanged {
             it?.let {
-                startConvertJob(it.toString(), 2)
+                if (binding.toTextField.hasFocus()) {
+                    toAmount.value?.let { it1 -> startConvertJob(toCurrency, fromCurrency, it1, 2) }
+                }
             }
         }
 
@@ -198,13 +231,15 @@ class ConvertFragment : Fragment() {
                                      */
                                     currencies = response.toSortedMap(compareBy { it })
 
-
                                     val ad: ArrayAdapter<*> = ArrayAdapter<Any?>(
                                         requireContext(),
                                         R.layout.simple_spinner_item,
                                         currencies.toList()
                                     )
                                     ad.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
+
+                                    currencyArrayAdapter?.value = ad
+
 
                                     binding.fromDropDown.adapter = ad
                                     binding.toDropDown.adapter = ad
@@ -221,7 +256,6 @@ class ConvertFragment : Fragment() {
                             showLongToast("${event.errorCode} ${event.cause}", requireContext())
                         }
                         Resource.Loading -> {
-                            Log.d("TAG", "request loading")
                         }
                     }
 
@@ -237,56 +271,75 @@ class ConvertFragment : Fragment() {
                     )
                     ad.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
 
-                    binding.fromDropDown.adapter = ad
-                    binding.toDropDown.adapter = ad
+                    currencyArrayAdapter?.value = ad
+
+
+                    binding.fromDropDown.adapter = currencyArrayAdapter?.value
+                    binding.toDropDown.adapter = currencyArrayAdapter?.value
                 }
             }
         }
     }
 
-    fun convert(amount: String, valueField: Int) {
+    /**
+     * the valueField indicates which of the 2 text inputs will change its value
+     * to the converted value
+     * 1 indicates that the input text will stay as it is
+     * 2 indicates that the output text will stay as it is
+     */
+    fun convert(from: String?, to: String?, amount: String, valueField: Int) {
+
         /**
          * I thought about making conversion local and fetching only the rate of 1
          * but the price of currency changes very fast
          */
 
-
         if (amount.isNotEmpty()) {
-            viewModel.clearResponses()
-            viewModel.convert(fromCurrency, toCurrency, amount)
+            if (from != null && to != null) {
 
-            lifecycleScope.launch() {
+                /**
+                 * just making sure we don't call the api needlessly when we don't have to
+                 * we can just set the values to 1.00
+                 */
 
-                viewModel.convertResponse.observe(viewLifecycleOwner) { event ->
-                    showLoading(event is Resource.Loading)
-                    when (event) {
-                        is Resource.Success -> {
-                            val status = event.value.success
-                            val response = event.value
+                if (from != to) {
+                    viewModel.clearResponses()
+                    viewModel.convert(from, to, amount)
 
-                            if (status == true) {
-                                if (valueField == 1) {
-                                    binding.toTextField.setText(response.result.toString())
-                                } else {
-                                    binding.fromTextField.setText(response.result.toString())
+                    lifecycleScope.launch() {
+
+                        viewModel.convertResponse.observe(viewLifecycleOwner) { event ->
+                            showLoading(event is Resource.Loading)
+                            when (event) {
+                                is Resource.Success -> {
+                                    val status = event.value.success
+                                    val response = event.value
+
+                                    if (status == true) {
+                                        if (valueField == 1) {
+                                            toAmount.value = response.result.toString()
+                                        } else {
+                                            fromAmount.value = response.result.toString()
+                                        }
+                                    }
                                 }
-                                convertJob.cancel()
-
+                                is Resource.Failure -> {
+                                }
+                                Resource.Loading -> {
+                                }
                             }
                         }
-                        is Resource.Failure -> {
-                        }
-                        Resource.Loading -> {
-                        }
                     }
+
+                } else {
+                    toAmount.value = fromAmount.value
+                    convertJob.cancel()
                 }
-
-
             }
         }
     }
 
-    private fun startConvertJob(amount: String, valueField: Int) {
+    private fun startConvertJob(from: String?, to: String?, amount: String, valueField: Int) {
 
         if (amount.isNotEmpty()) {
             convertJob.cancel()
@@ -299,7 +352,7 @@ class ConvertFragment : Fragment() {
                  */
                 delay(1000)
                 if (isActive)
-                    convert(amount, valueField)
+                    convert(from, to, amount, valueField)
             }
 
 

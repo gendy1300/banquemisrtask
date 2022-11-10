@@ -29,7 +29,7 @@
                 android:weightSum="5"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <Spinner
+                <TextView
                     android:id="@+id/fromDropDown"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
                     android:layout_weight="1"
                     android:src="@drawable/ic_swap" />
 
-                <Spinner
+                <TextView
                     android:id="@+id/toDropDown"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"

@@ -3,10 +3,8 @@ package com.ahmedelgendy.banquemisrtask.general.network
 import android.content.Context
 import android.util.Log
 import com.ahmedelgendy.banquemisrtask.BuildConfig
-
 import com.ahmedelgendy.banquemisrtask.R
 import com.ahmedelgendy.banquemisrtask.general.network.intercepter.ConnectionInterceptor
-import com.ahmedelgendy.banquemisrtask.general.showLongToast
 import com.google.gson.GsonBuilder
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.OkHttpClient
@@ -39,22 +37,19 @@ class RetrofitImplementation @Inject constructor(
                     .readTimeout(60, TimeUnit.SECONDS)
                     .connectTimeout(30, TimeUnit.SECONDS)
                     .addInterceptor { chain ->
-                        val request = chain.request()
-                        val response = chain.proceed(request)
-                        if (response.code == 401) {
 
-                            Log.d("network","${response.message}  need to change api key")
+                        val newRequest = chain.request().newBuilder().addHeader(
+                            "apikey",
+                            context.getString(R.string.apikey)
+                        ).build()
+
+                        val request = chain.proceed(newRequest)
+
+                        if (request.code == 401) {
+                            Log.d("network", "${request.message}  need to change api key")
                         }
 
-                        val originalRequest = chain.request()
-                        val httpUrl = originalRequest.url.newBuilder().build()
-                        val newRequest = originalRequest.newBuilder().url(httpUrl).build()
-                        chain.proceed(
-                            newRequest.newBuilder()
-                                .addHeader("apikey", context.getString(R.string.apikey))
-
-                                .build()
-                        )
+                        request
                     }
                     .also { client ->
                         if (BuildConfig.DEBUG) {

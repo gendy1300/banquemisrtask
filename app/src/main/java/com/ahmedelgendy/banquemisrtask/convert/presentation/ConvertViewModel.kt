@@ -38,17 +38,20 @@ class ConvertViewModel @Inject constructor(
         get() = _pastRatesResponse
 
 
-    var fromCurrency: String? = null
+    var fromCurrency: MutableLiveData<String> = MutableLiveData()
     var fromAmount: MutableLiveData<String> = MutableLiveData("1.00")
+    var formCurrencyTitle: MutableLiveData<String> = MutableLiveData()
     var fromCurrencyPosition: Int = 0
 
-    var toCurrency: String? = null
-    var toAmount: MutableLiveData<String> = MutableLiveData("1.0")
+    var toCurrency: MutableLiveData<String> = MutableLiveData()
+    var toAmount: MutableLiveData<String> = MutableLiveData("1.00")
+    var toCurrencyTitle: MutableLiveData<String> = MutableLiveData()
+
     var toCurrencyPosition: Int = 0
 
     var isConvertFragmentLoaded = false
 
-    lateinit var currencies: SortedMap<String, String>
+    var currencies: SortedMap<String, String> = TreeMap()
 
 
     fun getCurrencies() = viewModelScope.launch {

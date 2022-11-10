@@ -6,17 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnFocusChangeListener
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.AdapterView.OnItemSelectedListener
-import android.widget.ArrayAdapter
 import android.widget.EditText
-import android.widget.SpinnerAdapter
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import com.ahmedelgendy.banquemisrtask.convert.presentation.bottomsheets.CurrenciesBottomSheet
 import com.ahmedelgendy.banquemisrtask.databinding.ConvertFragmentLayoutBinding
 import com.ahmedelgendy.banquemisrtask.general.network.Resource
 import com.ahmedelgendy.banquemisrtask.general.showLoading
@@ -42,10 +38,11 @@ class ConvertFragment : Fragment() {
 
     private val binding get() = _binding!!
 
-
-    var currencyArrayAdapter: MutableLiveData<SpinnerAdapter>? = null
-
     var convertJob: Job = Job()
+
+    var isConvertFragmentCreated = false
+
+    var bottomSheet: CurrenciesBottomSheet? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -68,21 +65,36 @@ class ConvertFragment : Fragment() {
         loadData()
         textObservers()
         textFocusChange()
-        spinnersItemsSelectedListener()
         swapCurrencyImplementation()
+
+
+
+
 
 
         binding.detailsBtn?.setOnClickListener {
             val navigationAction =
                 ConvertFragmentDirections.convertFragmentToHistoryFragment(
-                    viewModel.fromCurrency,
-                    viewModel.toCurrency
+                    viewModel.fromCurrency?.value,
+                    viewModel.toCurrency.value
                 )
             it.findNavController().navigate(navigationAction)
         }
 
+        binding.fromDropDown.setOnClickListener {
+            showBottomSheet()
+        }
+
+        binding.toDropDown.setOnClickListener {
+            showBottomSheet(false)
+        }
+
 
     }
+
+
+
+
 
     private fun swapCurrencyImplementation() {
         binding.swapBtn.setOnClickListener {
@@ -91,76 +103,24 @@ class ConvertFragment : Fragment() {
              * when swapping currencies the input stays as it is and the output get the converted value
              */
 
-            val tempCurrency = viewModel.fromCurrency
-            viewModel.fromCurrency = viewModel.toCurrency
-            viewModel.toCurrency = tempCurrency
-
-            binding.fromDropDown.setSelection(viewModel.toCurrencyPosition)
-            viewModel.toAmount.value = ""
-            binding.toDropDown.setSelection(viewModel.fromCurrencyPosition)
-
-        }
-    }
 
 
-    private fun spinnersItemsSelectedListener() {
-        /**
-         * when the selected currency change the input stays as it is
-         * and the output changes its value to the converted value
-         */
+            viewModel.apply {
+                val tempCurrency = fromCurrency.value
+                fromCurrency.value = toCurrency.value
+                toCurrency.value = tempCurrency
 
-        binding.toDropDown.onItemSelectedListener = object : OnItemSelectedListener {
-            override fun onItemSelected(p0: AdapterView<*>?, view: View?, position: Int, p3: Long) {
+                val tempCurrencyName = formCurrencyTitle.value
+                formCurrencyTitle.value =toCurrencyTitle.value
+                toCurrencyTitle.value = tempCurrencyName
 
-                viewModel.toCurrency =
-                    binding.toDropDown.selectedItem.toString().substringAfter("(")
-                        .split(",")[0]
-
-                viewModel.toCurrencyPosition = position
-
-
-                viewModel.fromAmount.value?.let {
-                    convert(
-                        viewModel.fromCurrency,
-                        viewModel.toCurrency,
-                        it,
-                        1
-                    )
+                fromAmount.value?.let { it1 ->
+                    convert(fromCurrency.value, toCurrency.value,
+                        it1, 1)
                 }
-
-
             }
 
-            override fun onNothingSelected(p0: AdapterView<*>?) {
 
-            }
-
-        }
-
-        binding.fromDropDown.onItemSelectedListener = object : OnItemSelectedListener {
-
-            override fun onItemSelected(p0: AdapterView<*>?, view: View?, position: Int, p3: Long) {
-//                val spinner = view as AppCompatTextView
-                viewModel.fromCurrency =
-                    binding.fromDropDown.selectedItem.toString().substringAfter("(")
-                        .split(",")[0]
-                viewModel.fromCurrencyPosition = position
-
-
-                viewModel.fromAmount.value?.let {
-                    convert(
-                        viewModel.fromCurrency,
-                        viewModel.toCurrency,
-                        it,
-                        1
-                    )
-                }
-
-            }
-
-            override fun onNothingSelected(p0: AdapterView<*>?) {
-
-            }
 
         }
     }
@@ -198,12 +158,13 @@ class ConvertFragment : Fragment() {
                 if (binding.fromTextField.hasFocus()) {
                     viewModel.fromAmount.value?.let { it1 ->
                         startConvertJob(
-                            viewModel.fromCurrency,
-                            viewModel.toCurrency,
+                            viewModel.fromCurrency.value,
+                            viewModel.toCurrency.value,
                             it1,
                             1
                         )
                     }
+
                 }
             }
         }
@@ -212,15 +173,17 @@ class ConvertFragment : Fragment() {
         binding.toTextField.doAfterTextChanged {
             it?.let {
                 if (binding.toTextField.hasFocus()) {
+
                     viewModel.toAmount.value?.let { it1 ->
                         startConvertJob(
-                            viewModel.toCurrency,
-                            viewModel.fromCurrency,
+                            viewModel.toCurrency.value,
+                            viewModel.fromCurrency.value,
                             it1,
                             2
                         )
                     }
                 }
+
             }
         }
 
@@ -230,7 +193,9 @@ class ConvertFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        isConvertFragmentCreated = false
         _binding = null
+
     }
 
 
@@ -238,19 +203,6 @@ class ConvertFragment : Fragment() {
         if (!viewModel.isConvertFragmentLoaded) {
             viewModel.getCurrencies()
             startObserver()
-        } else {
-            val ad: ArrayAdapter<*> = ArrayAdapter<Any?>(
-                requireContext(),
-                android.R.layout.simple_spinner_item,
-                viewModel.currencies.toList()
-            )
-            ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
-            currencyArrayAdapter?.value = ad
-
-
-            binding.fromDropDown.adapter = ad
-            binding.toDropDown.adapter = ad
         }
     }
 
@@ -269,30 +221,28 @@ class ConvertFragment : Fragment() {
                                 if (response != null) {
                                     viewModel.isConvertFragmentLoaded = true
 
+
                                     /**
                                      * sorting the map will give us a better user experience
                                      * and will ensure that the hashmap keys dose not change
                                      * positions when retrieving it on the on selected method
                                      */
 
-                                    viewModel.currencies = response.toSortedMap(compareBy { it })
+                                    viewModel.apply {
+                                        currencies = response.toSortedMap(compareBy { it })
+                                        fromCurrency.value = currencies.keys.toList()[0]
+                                        toCurrency.value = currencies.keys.toList()[0]
+                                        formCurrencyTitle.value =
+                                            "${currencies[fromCurrency.value]} (${fromCurrency.value})"
 
-                                    val ad: ArrayAdapter<*> = ArrayAdapter<Any?>(
-                                        requireContext(),
-                                        android.R.layout.simple_spinner_item,
-                                        viewModel.currencies.toList()
-                                    )
-                                    ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
-                                    currencyArrayAdapter?.value = ad
+                                        toCurrencyTitle.value =
+                                            "${currencies[toCurrency.value]} (${toCurrency.value})"
+                                    }
 
 
-                                    binding.fromDropDown.adapter = ad
-                                    binding.toDropDown.adapter = ad
                                 } else {
                                     showLongToast("there is no countries", requireContext())
                                 }
-
 
                             } else {
                                 showLongToast("an error has occurred", requireContext())
@@ -304,24 +254,6 @@ class ConvertFragment : Fragment() {
                         Resource.Loading -> {
                         }
                     }
-
-                } ?: run {
-                    /**
-                     * this is in case if the api is already loaded so we don't over spam
-                     * the server when we don't have to
-                     */
-                    val ad: ArrayAdapter<*> = ArrayAdapter<Any?>(
-                        requireContext(),
-                        android.R.layout.simple_spinner_item,
-                        viewModel.currencies.toList()
-                    )
-                    ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
-                    currencyArrayAdapter?.value = ad
-
-
-                    binding.fromDropDown.adapter = currencyArrayAdapter?.value
-                    binding.toDropDown.adapter = currencyArrayAdapter?.value
                 }
             }
         }
@@ -405,5 +337,31 @@ class ConvertFragment : Fragment() {
         } else {
             convertJob.cancel()
         }
+    }
+
+    private fun showBottomSheet(isInput: Boolean = true) {
+        bottomSheet = CurrenciesBottomSheet(viewModel.currencies) { key, name ->
+            if (isInput) {
+                viewModel.fromCurrency.value = key
+                viewModel.formCurrencyTitle.value = "$name ($key)"
+            } else {
+                viewModel.toCurrency.value = key
+                viewModel.toCurrencyTitle.value = "$name ($key)"
+            }
+
+
+            viewModel.apply {
+                fromAmount.value?.let { it1 ->
+                    convert(
+                        fromCurrency.value,
+                        toCurrency.value,
+                        it1,
+                        1
+                    )
+                }
+            }
+        }
+        bottomSheet?.show(childFragmentManager, "CurrenciesBottomSheet")
+
     }
 }

@@ -3,6 +3,7 @@
     <string name="convert">Convert</string>
     <string name="history">History</string>
     <string name="baseUrl">https://api.apilayer.com/fixer/</string>
-    <string name="apikey">MoewQC06yzGUOsSNndvYgOqRzdI3SQaZ</string>
+    <string name="apikey">f23B4z6tGYTCL3t8IndcJkVFubYG1bux</string>
     <string name="details">Details</string>
+    <string name="apiTag">Api Calls</string>
 </resources>

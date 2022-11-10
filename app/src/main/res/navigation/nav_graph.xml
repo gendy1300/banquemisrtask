@@ -20,6 +20,26 @@
     <fragment
         android:id="@+id/HistoryFragment"
         android:name="com.ahmedelgendy.banquemisrtask.history.presentation.HistoryFragment"
-        tools:layout="@layout/historical_data_layout" />
+        tools:layout="@layout/historical_data_layout" >
+
+        <argument
+            android:name="fromCurrency"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null"/>
+
+        <argument
+            android:name="toCurrency"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null"/>
+
+        <argument
+            android:name="popularCurrencies"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null"/>
+
+    </fragment>
 
 </navigation>

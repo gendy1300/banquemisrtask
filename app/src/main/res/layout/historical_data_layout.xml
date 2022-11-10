@@ -16,6 +16,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+
+
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/halfTheScreen"
             android:layout_width="wrap_content"

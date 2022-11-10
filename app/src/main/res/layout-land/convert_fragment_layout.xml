@@ -21,74 +21,40 @@
             <LinearLayout
                 android:id="@+id/convertLayout"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
+                android:layout_height="60dp"
                 android:layout_marginStart="13dp"
-                android:layout_marginTop="150dp"
+                android:layout_marginTop="80dp"
                 android:layout_marginEnd="13dp"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:weightSum="10"
+                android:gravity="center_vertical"
+                android:weightSum="5"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <Spinner
                     android:id="@+id/fromDropDown"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="2"
 
                     android:background="@android:drawable/btn_dropdown"
                     android:popupBackground="@color/white"
                     android:spinnerMode="dropdown" />
 
-                <EditText
-                    android:id="@+id/fromTextField"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="2"
-
-                    android:background="#E8E9EB"
-                    android:inputType="numberDecimal"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    android:text="@={currencyVariables.fromAmount}"
-                    android:textAlignment="center"
-                    android:textColor="@color/black"
-                    android:textSize="20sp" />
-
                 <ImageView
                     android:id="@+id/swapBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:padding="10dp"
-                    android:layout_weight="2"
-                    android:scaleType="fitCenter"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
                     android:src="@drawable/ic_swap" />
 
                 <Spinner
                     android:id="@+id/toDropDown"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="2"
-
 
                     android:background="@android:drawable/btn_dropdown"
                     android:popupBackground="@color/white"
                     android:spinnerMode="dropdown" />
-
-                <EditText
-                    android:id="@+id/toTextField"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="2"
-                    android:background="#E8E9EB"
-                    android:gravity="center"
-                    android:inputType="numberDecimal"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    android:text="@={currencyVariables.toAmount}"
-                    android:textAlignment="center"
-                    android:textColor="@color/black"
-                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -102,20 +68,44 @@
                 app:layout_constraintTop_toBottomOf="@id/convertLayout">
 
 
-
+                <EditText
+                    android:id="@+id/fromTextField"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2"
+                    android:background="#E8E9EB"
+                    android:inputType="numberDecimal"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="@={currencyVariables.fromAmount}"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:textSize="20sp" />
 
                 <View
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
 
-
+                <EditText
+                    android:id="@+id/toTextField"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2"
+                    android:background="#E8E9EB"
+                    android:gravity="center"
+                    android:inputType="numberDecimal"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="@={currencyVariables.toAmount}"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:textSize="20sp" />
 
             </LinearLayout>
 
 
             <Button
-                android:id="@+id/detailsBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="50dp"

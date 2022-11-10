@@ -9,4 +9,6 @@
     <string name="search_here">search here</string>
     <string name="select_a_currency"><b>select a currency</b></string>
     <string name="today">Today</string>
+    <string name="last_3_days">last 3 days</string>
+    <string name="other_currencies">Other Currencies</string>
 </resources>

@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.ahmedelgendy.banquemisrtask.R
@@ -16,11 +15,13 @@ import com.ahmedelgendy.banquemisrtask.databinding.HistoricalDataLayoutBinding
 import com.ahmedelgendy.banquemisrtask.general.network.Resource
 import com.ahmedelgendy.banquemisrtask.general.showLoading
 import com.ahmedelgendy.banquemisrtask.general.showLongToast
+import com.ahmedelgendy.banquemisrtask.history.presentation.adapters.LastThreeDayRecyclerAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 
 @AndroidEntryPoint
@@ -51,11 +52,9 @@ class HistoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        binding.currencyVariables = this
+        binding.lifecycleOwner = viewLifecycleOwner
 
-        fromCurrency = args.fromCurrency
-        toCurrency = args.toCurrency
-        popularCurrencies = args.popularCurrencies
+
 
 
 
@@ -71,12 +70,15 @@ class HistoryFragment : Fragment() {
         val endDate = getDate()
 
         if (startDate != null && endDate != null) {
-            viewModel.getPastRates(
-                fromCurrency = fromCurrency,
-                toCurrencies = toCurrency,
-                startDate = startDate,
-                endDate = endDate
-            )
+            viewModel.apply {
+                getPastRates(
+                    fromCurrency = fromCurrency.value,
+                    toCurrencies = toCurrency.value,
+                    startDate = startDate,
+                    endDate = endDate
+                )
+            }
+
             startObserver()
         }
     }
@@ -89,13 +91,17 @@ class HistoryFragment : Fragment() {
                     when (event) {
                         is Resource.Success -> {
                             val status = event.value.success
-                            val response = event.value.rates
+                            val response = event.value.rates?.toSortedMap(compareByDescending { it })
 
                             if (status == true) {
 
                                 if (response != null) {
 
-                                    Log.d(getString(R.string.apiTag), response.toString())
+                                    viewModel.apply {
+                                        binding.historyRecycler.adapter = LastThreeDayRecyclerAdapter(
+                                            response as TreeMap<String, HashMap<String, String>>,fromCurrency.value,toCurrency.value)
+                                    }
+
 
                                 } else {
                                     showLongToast("there is no countries", requireContext())
@@ -131,7 +137,6 @@ class HistoryFragment : Fragment() {
         val newDate = calendar.time
 //        val parser = SimpleDateFormat("EEE MMM dd HH:mm:ss zzzz yyyy")
 //        val formatter = SimpleDateFormat("yyyy-mm-dd")
-
 
 
         try {

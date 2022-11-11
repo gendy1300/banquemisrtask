@@ -75,7 +75,7 @@ class ConvertFragment : Fragment() {
         binding.detailsBtn.setOnClickListener {
             val navigationAction =
                 ConvertFragmentDirections.convertFragmentToHistoryFragment(
-                    viewModel.fromCurrency?.value,
+                    viewModel.fromCurrency.value,
                     viewModel.toCurrency.value
                 )
             viewModel.isHistoryFragmentLoaded = false
@@ -94,9 +94,6 @@ class ConvertFragment : Fragment() {
     }
 
 
-
-
-
     private fun swapCurrencyImplementation() {
         binding.swapBtn.setOnClickListener {
 
@@ -105,22 +102,23 @@ class ConvertFragment : Fragment() {
              */
 
 
-
             viewModel.apply {
                 val tempCurrency = fromCurrency.value
                 fromCurrency.value = toCurrency.value
                 toCurrency.value = tempCurrency
 
                 val tempCurrencyName = formCurrencyTitle.value
-                formCurrencyTitle.value =toCurrencyTitle.value
+                formCurrencyTitle.value = toCurrencyTitle.value
                 toCurrencyTitle.value = tempCurrencyName
-
+                binding.scrollView.requestFocus()
                 fromAmount.value?.let { it1 ->
-                    convert(fromCurrency.value, toCurrency.value,
-                        it1, 1)
+                    convert(
+                        fromCurrency.value, toCurrency.value,
+                        it1, 1
+                    )
                 }
-            }
 
+            }
 
 
         }
@@ -312,7 +310,10 @@ class ConvertFragment : Fragment() {
                     }
 
                 } else {
-                    viewModel.toAmount.value = viewModel.fromAmount.value
+                    if (valueField == 1)
+                        viewModel.toAmount.value = viewModel.fromAmount.value
+                    else
+                        viewModel.fromAmount.value = viewModel.toAmount.value
                     convertJob.cancel()
                 }
             }

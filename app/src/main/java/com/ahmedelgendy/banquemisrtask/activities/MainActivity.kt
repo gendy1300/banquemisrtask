@@ -27,15 +27,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
 
-
-
         binding = ActivityMainBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
-
-
-
-
 
 
         navController = Navigation.findNavController(
@@ -46,11 +40,6 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main)
 
 
-    }
-
-
-    private fun getCurrentFragment(): Fragment? {
-        return navHostFragment?.childFragmentManager?.fragments?.get(0)
     }
 
 

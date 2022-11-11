@@ -94,7 +94,7 @@ class HistoryFragment : Fragment() {
 
 
     private fun startObserver() {
-        lifecycleScope.launch() {
+        lifecycleScope.launch {
             viewModel.pastRatesResponse.observe(viewLifecycleOwner) { it ->
                 it.getContentIfNotHandled()?.let { event ->
                     showLoading(event is Resource.Loading)
@@ -177,7 +177,7 @@ class HistoryFragment : Fragment() {
                         }
                         is Resource.Failure -> {
 
-                            Log.e(getString(R.string.apiTag), "${event.errorCode} ${event.cause}")
+                            showLongToast(event.cause, requireContext())
                         }
                         Resource.Loading -> {
                         }

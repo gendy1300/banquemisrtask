@@ -249,7 +249,7 @@ class ConvertFragment : Fragment() {
                             }
                         }
                         is Resource.Failure -> {
-                            showLongToast("${event.errorCode} ${event.cause}", requireContext())
+                            showLongToast(event.cause, requireContext())
                         }
                         Resource.Loading -> {
                         }
@@ -302,6 +302,7 @@ class ConvertFragment : Fragment() {
                                     }
                                 }
                                 is Resource.Failure -> {
+                                    showLongToast(event.cause, requireContext())
                                 }
                                 Resource.Loading -> {
                                 }

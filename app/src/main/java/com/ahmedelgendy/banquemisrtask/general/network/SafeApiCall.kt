@@ -1,6 +1,5 @@
 package com.ahmedelgendy.banquemisrtask.general.network
 
-import com.ahmedelgendy.banquemisrtask.general.network.intercepter.NoConnectivityException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
@@ -16,14 +15,22 @@ interface SafeApiCall {
             } catch (throwable: Throwable) {
                 when (throwable) {
                     is HttpException -> {
+                        var msg = "an error has occurred"
+
+
+                        if (throwable.code() == 429) {
+                            msg = "Need New Api Key"
+                        }
+
+
                         Resource.Failure(
                             false,
                             throwable.code(),
-                            throwable.message().toString()
+                            msg
                         )
                     }
 
-                    is NoConnectivityException -> {
+                    is java.net.UnknownHostException -> {
                         Resource.Failure(
                             true,
                             0,

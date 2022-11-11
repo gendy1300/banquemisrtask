@@ -20,6 +20,8 @@ class RetrofitImplementation @Inject constructor(
 ) {
 
 
+
+
     @Throws(IOException::class)
     fun <Api> buildApi(api: Class<Api>): Api {
 
@@ -37,6 +39,14 @@ class RetrofitImplementation @Inject constructor(
                     .readTimeout(60, TimeUnit.SECONDS)
                     .connectTimeout(30, TimeUnit.SECONDS)
                     .addInterceptor { chain ->
+
+                        /**
+                         * will be using the api key as a string instead of saving it into the local.properties
+                         * so anyone who is wanting to test the can run it without any problems
+                         */
+
+//                        val apikey = BuildConfig.ApiKey
+
 
                         val newRequest = chain.request().newBuilder().addHeader(
                             "apikey",

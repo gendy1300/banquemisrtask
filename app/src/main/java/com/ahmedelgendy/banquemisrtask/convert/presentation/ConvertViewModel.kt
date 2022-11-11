@@ -14,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
+import kotlin.collections.HashMap
 
 @HiltViewModel
 class ConvertViewModel @Inject constructor(
@@ -50,9 +51,11 @@ class ConvertViewModel @Inject constructor(
     var toCurrencyPosition: Int = 0
 
     var isConvertFragmentLoaded = false
+    var isHistoryFragmentLoaded = false
+
 
     var currencies: SortedMap<String, String> = TreeMap()
-
+    var historicalData:SortedMap<String, HashMap<String,String>> = TreeMap()
 
     fun getCurrencies() = viewModelScope.launch {
         _currenciesResponse.postValue(NetworkCallEvent(Resource.Loading))

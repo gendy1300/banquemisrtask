@@ -72,12 +72,13 @@ class ConvertFragment : Fragment() {
 
 
 
-        binding.detailsBtn?.setOnClickListener {
+        binding.detailsBtn.setOnClickListener {
             val navigationAction =
                 ConvertFragmentDirections.convertFragmentToHistoryFragment(
                     viewModel.fromCurrency?.value,
                     viewModel.toCurrency.value
                 )
+            viewModel.isHistoryFragmentLoaded = false
             it.findNavController().navigate(navigationAction)
         }
 

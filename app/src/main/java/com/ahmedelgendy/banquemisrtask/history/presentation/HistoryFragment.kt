@@ -75,21 +75,27 @@ class HistoryFragment : Fragment() {
 
     private fun loadData() {
 
-        val startDate = getDate(-3)
-        val endDate = getDate()
+        if (!viewModel.isHistoryFragmentLoaded) {
+            val startDate = getDate(-3)
+            val endDate = getDate()
 
-        if (startDate != null && endDate != null) {
-            viewModel.apply {
-                getPastRates(
-                    fromCurrency = fromCurrency.value,
-                    toCurrencies = this@HistoryFragment.getCurrencies(),
-                    startDate = startDate,
-                    endDate = endDate
-                )
+            if (startDate != null && endDate != null) {
+                viewModel.apply {
+                    getPastRates(
+                        fromCurrency = fromCurrency.value,
+                        toCurrencies = this@HistoryFragment.getCurrencies(),
+                        startDate = startDate,
+                        endDate = endDate
+                    )
+                }
+
+
+                startObserver()
+            }
+        }else {
+                updateUi(viewModel.historicalData)
             }
 
-            startObserver()
-        }
     }
 
 
@@ -107,64 +113,9 @@ class HistoryFragment : Fragment() {
                             if (status == true) {
 
                                 if (response != null) {
-
-                                    val chartPriceArray = ArrayList<String>()
-                                    for (i in response.keys.toList()) {
-                                        response[i]?.get(viewModel.toCurrency.value)
-                                            ?.let { it1 -> chartPriceArray.add(it1) }
-
-                                    }
-
-                                    setupBarChart(response.keys.toList(), chartPriceArray)
-
-
-                                    viewModel.apply {
-                                        binding.historyRecycler.adapter =
-                                            LastThreeDayRecyclerAdapter(
-                                                response as TreeMap<String, HashMap<String, String>>,
-                                                fromCurrency.value,
-                                                toCurrency.value
-                                            )
-                                    }
-
-
-                                    /**
-                                     * just to get the currencies in the right order because hashmaps
-                                     * order is not constant
-                                     */
-                                    val currenciesArray: ArrayList<String> =
-                                        this@HistoryFragment.getCurrencies()
-                                            ?.split(",") as ArrayList<String>
-
-                                    /**
-                                     * removing the first currency as it is our selected output currency
-                                     */
-                                    currenciesArray.removeAt(0)
-
-
-
-
-                                    viewModel.apply {
-
-                                        /**
-                                         * removing the current from currency if it exists in the array
-                                         */
-                                        currenciesArray.remove(fromCurrency.value)
-
-                                        binding.otherCurrenciesRecycler.adapter =
-                                            response[getDate()]?.let { it1 ->
-                                                OtherCurrenciesRecyclerAdapter(
-                                                    it1,
-                                                    fromCurrency.value,
-                                                    toCurrency.value,
-                                                    currenciesArray.subList(
-                                                        0,
-                                                        10
-                                                    ) //only to show 10 items if no item is removed
-                                                )
-                                            }
-
-                                    }
+                                    updateUi(response)
+                                    viewModel.historicalData = response
+                                    viewModel.isHistoryFragmentLoaded = true
 
                                 } else {
                                     showLongToast("there is no countries", requireContext())
@@ -332,6 +283,72 @@ class HistoryFragment : Fragment() {
         }
 
         return entriesList
+    }
+
+
+    fun updateUi(response: SortedMap<String, HashMap<String, String>>) {
+
+
+        val chartPriceArray = ArrayList<String>()
+        for (i in response.keys.toList()) {
+            response[i]?.get(viewModel.toCurrency.value)
+                ?.let { it1 -> chartPriceArray.add(it1) }
+
+        }
+
+        setupBarChart(response.keys.toList(), chartPriceArray)
+
+
+        viewModel.apply {
+            binding.historyRecycler.adapter =
+                LastThreeDayRecyclerAdapter(
+                    response as TreeMap<String, HashMap<String, String>>,
+                    fromCurrency.value,
+                    toCurrency.value
+                )
+        }
+
+
+        /**
+         * just to get the currencies in the right order because hashmaps
+         * order is not constant
+         */
+        val currenciesArray: ArrayList<String> =
+            this@HistoryFragment.getCurrencies()
+                ?.split(",") as ArrayList<String>
+
+        /**
+         * removing the first currency as it is our selected output currency
+         */
+        currenciesArray.removeAt(0)
+
+
+
+
+        viewModel.apply {
+
+            /**
+             * removing the current from currency if it exists in the array
+             */
+            currenciesArray.remove(fromCurrency.value)
+
+            binding.otherCurrenciesRecycler.adapter =
+                response[getDate()]?.let { it1 ->
+                    OtherCurrenciesRecyclerAdapter(
+                        it1,
+                        fromCurrency.value,
+                        toCurrency.value,
+                        currenciesArray.subList(
+                            0,
+                            10
+                        ) //only to show 10 items if no item is removed
+                    )
+                }
+
+
+        }
+
+
     }
 
 

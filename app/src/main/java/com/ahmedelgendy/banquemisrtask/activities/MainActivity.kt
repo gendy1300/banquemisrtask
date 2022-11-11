@@ -7,12 +7,9 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.Navigation
-import androidx.navigation.ui.setupWithNavController
 import com.ahmedelgendy.banquemisrtask.R
 import com.ahmedelgendy.banquemisrtask.databinding.ActivityMainBinding
-import com.ahmedelgendy.banquemisrtask.general.SharedPrefHelper
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 
 @AndroidEntryPoint
@@ -23,10 +20,6 @@ class MainActivity : AppCompatActivity() {
 
     var currentDestination: NavDestination? = null
     var navHostFragment: Fragment? = null
-
-
-    @Inject
-    lateinit var sharedPrefHelper: SharedPrefHelper
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,8 +44,6 @@ class MainActivity : AppCompatActivity() {
 
         navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main)
-
-
 
 
     }

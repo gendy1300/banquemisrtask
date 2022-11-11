@@ -7,8 +7,8 @@
     <androidx.core.widget.NestedScrollView
         android:id="@+id/historyRootView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -47,7 +47,7 @@
                 tools:listitem="@layout/history_item_layout" />
 
 
-            <!--to get half of the screen in a constraint layout-->
+<!--            to get half of the screen in a constraint layout-->
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/halfTheScreen"
                 android:layout_width="wrap_content"
